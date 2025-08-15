@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore ke liye
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth ke liye
 
 class AddStudentPage extends StatefulWidget {
   const AddStudentPage({super.key});
@@ -13,8 +11,10 @@ class _AddStudentPageState extends State<AddStudentPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _usnController = TextEditingController(); // For Roll No. / USN
-  final _emailController = TextEditingController(); // Student's email for Firebase Auth
-  final _passwordController = TextEditingController(); // Initial password for student
+  final _emailController =
+      TextEditingController(); // Student's email for Firebase Auth
+  final _passwordController =
+      TextEditingController(); // Initial password for student
   bool _isLoading = false; // Loading indicator for adding student
 
   @override
@@ -26,55 +26,22 @@ class _AddStudentPageState extends State<AddStudentPage> {
     super.dispose();
   }
 
-  Future<void> _addStudent() async {
+  void _addStudent() {
     if (_formKey.currentState!.validate()) {
-      setState(() { _isLoading = true; });
-      try {
-        // 1. Create user in Firebase Authentication with Email/Password
-        // We'll use email as the primary identifier for Firebase Auth
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-
-        String newUserId = userCredential.user!.uid;
-
-        // 2. Store student details in Firestore
-        // This document will be in the 'users' collection with the Firebase Auth UID as its ID
-        await FirebaseFirestore.instance.collection('users').doc(newUserId).set({
-          'name': _nameController.text.trim(),
-          'usn': _usnController.text.trim(), // Store USN/Roll No. separately
-          'email': _emailController.text.trim(),
-          'role': 'student', // Assign 'student' role
-          'userId': newUserId,
-          'createdAt': FieldValue.serverTimestamp(), // Timestamp for when student was added
-          // Add other student-specific fields like class, batch etc. if needed
-          // 'classId': 'some_class_id',
+      setState(() {
+        _isLoading = true;
+      });
+      Future.delayed(const Duration(seconds: 1), () {
+        setState(() {
+          _isLoading = false;
         });
-
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Student added successfully!')),
+          const SnackBar(
+            content: Text('Student added (placeholder, no backend).'),
+          ),
         );
-        Navigator.pop(context); // Go back to TeacherHomePage after adding
-      } on FirebaseAuthException catch (e) {
-        String message;
-        if (e.code == 'weak-password') {
-          message = 'The password provided is too weak.';
-        } else if (e.code == 'email-already-in-use') {
-          message = 'The email address is already in use by another account.';
-        } else {
-          message = 'Failed to add student: ${e.message}';
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An unexpected error occurred: $e')),
-        );
-      } finally {
-        setState(() { _isLoading = false; });
-      }
+        Navigator.pop(context);
+      });
     }
   }
 
@@ -175,10 +142,7 @@ class _AddStudentPageState extends State<AddStudentPage> {
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                  'Add Student',
-                  style: TextStyle(fontSize: 18),
-                ),
+                    : const Text('Add Student', style: TextStyle(fontSize: 18)),
               ),
             ],
           ),

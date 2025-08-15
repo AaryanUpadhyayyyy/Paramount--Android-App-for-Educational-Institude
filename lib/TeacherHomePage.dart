@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // For logout
+// import 'package:firebase_auth/firebase_auth.dart'; // Firebase removed
 import 'package:paramount/main.dart'; // For LoginPage navigation
 import 'package:paramount/add_student_page.dart'; // AddStudentPage import
 
@@ -10,16 +10,21 @@ class TeacherHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Teacher Dashboard", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Teacher Dashboard",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.indigo.shade700,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
-              await FirebaseAuth.instance.signOut(); // Logout user
+              // Firebase logout removed
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const LoginPage(title: 'Login')), // Back to login
+                MaterialPageRoute(
+                  builder: (context) => const LoginPage(title: 'Login'),
+                ), // Back to login
               );
             },
           ),
@@ -31,7 +36,11 @@ class TeacherHomePage extends StatelessWidget {
           children: [
             const Text(
               "Welcome, Teacher!",
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.indigo),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.indigo,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -39,7 +48,9 @@ class TeacherHomePage extends StatelessWidget {
                 // Navigate to Add Student Page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AddStudentPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const AddStudentPage(),
+                  ),
                 );
               },
               child: const Text("Add New Student"),
@@ -49,7 +60,9 @@ class TeacherHomePage extends StatelessWidget {
               onPressed: () {
                 // TODO: Navigate to Mark Attendance Page
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Mark Attendance feature coming soon!')),
+                  const SnackBar(
+                    content: Text('Mark Attendance feature coming soon!'),
+                  ),
                 );
               },
               child: const Text("Mark Attendance"),
