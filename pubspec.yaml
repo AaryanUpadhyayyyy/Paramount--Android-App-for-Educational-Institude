@@ -11,7 +11,17 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.20.2 # Updated to latest stable
-  # Firebase dependencies removed
+  # Firebase dependencies
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.3
+  cloud_firestore: ^4.13.6
+  firebase_messaging: ^14.7.10
+  firebase_analytics: ^10.7.4
+  # Cloudinary for file storage (replaces Firebase Storage)
+  cloudinary_public: ^0.21.0
+  http: ^1.1.0
+  # Image handling
+  image_picker: ^1.0.7
   url_launcher: ^6.2.2
   cupertino_icons: ^1.0.8
 

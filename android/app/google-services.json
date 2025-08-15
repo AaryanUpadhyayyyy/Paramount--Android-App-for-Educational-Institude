@@ -1,44 +1,26 @@
-// Entire file deleted
 {
   "project_info": {
-    "project_number": "929885803027",
-    "project_id": "paramount-classes-8d18d",
-    "storage_bucket": "paramount-classes-8d18d.firebasestorage.app"
+    "project_number": "409055933087",
+    "project_id": "paramount-classes-4fc15",
+    "storage_bucket": "paramount-classes-4fc15.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:929885803027:android:4ff20d9678cbd5cd5b65e6",
+        "mobilesdk_app_id": "1:409055933087:android:73379d5c12da73bf6868aa",
         "android_client_info": {
           "package_name": "com.example.paramount"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "929885803027-m7dtnn9lvma236pjf0k45go1vp33molu.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDg09uafOmZh1aeL2TggUJbizxtLXazdfo"
+          "current_key": "AIzaSyC3TnuALtVryAroYmCMtS1I67u6WdlzDYc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "929885803027-m7dtnn9lvma236pjf0k45go1vp33molu.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "929885803027-f2f4pi0ifetbrg6lh5du9r3sgv9hgun5.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.paramount"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

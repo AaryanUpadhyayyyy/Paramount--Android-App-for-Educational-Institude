@@ -4,7 +4,7 @@ import 'package:paramount/main.dart'; // For LoginPage navigation
 import 'package:paramount/HomePage.dart'; // Your existing HomePage as student's main dashboard content
 
 class StudentHomePage extends StatelessWidget {
-  const StudentHomePage({super.key});
+  const StudentHomePage({super.key, required usn, required name});
 
   @override
   Widget build(BuildContext context) {
