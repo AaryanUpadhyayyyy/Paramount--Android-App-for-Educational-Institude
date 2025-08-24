@@ -1,140 +1,138 @@
 import 'package:flutter/material.dart';
 
-// Dummy data for a placeholder teacher
-const String dummyTeacherName = "Anjali Mehta";
-const String dummyTeacherEmail = "anjali.mehta@example.com";
-
-// Dummy data for students and faculty
-final List<String> dummyStudents = [
-  "John Doe",
-  "Jane Smith",
-  "Aaryan Upadhyay"
-];
-final List<String> dummyFaculty = [
-  "Dr. Sunil Upadhyay",
-  "Dr. Anjali Mehta",
-  "Prof. Rahul Sharma"
-];
-
 class TeacherHomePage extends StatelessWidget {
   const TeacherHomePage({super.key});
+
+  // Dummy teacher data
+  final String teacherName = 'Mr. Sunil Sharma';
+  final String teacherId = 'TCH7890';
+  final String department = 'Computer Science';
+  final String profileImageUrl = 'assets/images/sunil.jpg'; // Example image
+
+  // Dummy courses data
+  final List<Map<String, String>> courses = const [
+    {'name': 'Data Structures', 'code': 'CS301', 'students': '60'},
+    {'name': 'Algorithms', 'code': 'CS302', 'students': '55'},
+    {'name': 'Operating Systems', 'code': 'CS401', 'students': '40'},
+    {'name': 'Database Management', 'code': 'CS402', 'students': '45'},
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Teacher Dashboard",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: const Text('Teacher Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              _showMessage(context, 'No new notifications for teachers.');
+            },
           ),
-        ),
-        backgroundColor: Colors.indigo.shade700,
-        foregroundColor: Colors.white,
-        elevation: 4.0,
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              // Logout functionality: Navigate back to the main home page
+              Navigator.of(context).pushReplacementNamed('/home');
+            },
+          ),
+        ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            UserAccountsDrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.indigo.shade700,
-              ),
-              accountName: const Text(
-                dummyTeacherName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              accountEmail: const Text(dummyTeacherEmail),
-              currentAccountPicture: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.person,
-                  color: Colors.indigo,
-                  size: 50,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home, color: Colors.indigo),
-              title: const Text("Home"),
-              onTap: () => Navigator.of(context).pop(),
-            ),
-            ListTile(
-              leading: const Icon(Icons.group, color: Colors.indigo),
-              title: const Text("Students"),
-              onTap: () {
-                Navigator.of(context).pop();
-                // Add your navigation logic here, e.g., to a new StudentsPage
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.people, color: Colors.indigo),
-              title: const Text("Faculty"),
-              onTap: () {
-                Navigator.of(context).pop();
-                // Add your navigation logic here, e.g., to a new FacultyPage
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("Logout"),
-              onTap: () {
-                Navigator.of(context).pop();
-                // Dummy logout logic
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Logged out successfully!")),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: _buildTeacherDrawer(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Section
+            // Teacher Profile Header
+            _buildProfileHeader(context),
+            const SizedBox(height: 25),
+
+            // Teaching Courses Section
             Text(
-              "Welcome, $dummyTeacherName!",
-              style: const TextStyle(
-                fontSize: 28,
+              'My Teaching Courses',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.indigo,
+                color: Colors.deepPurple.shade800,
+                fontFamily: 'Oswald',
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
+            // Courses ko ListView.builder se dynamically dikhaya
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: courses.length,
+              itemBuilder: (context, index) {
+                final course = courses[index];
+                return _buildCourseCard(
+                  context,
+                  courseName: course['name']!,
+                  courseCode: course['code']!,
+                  studentCount: course['students']!,
+                  onTap: () {
+                    _showMessage(context, 'Managing course: ${course['name']}');
+                    // Navigator.of(context).pushNamed('/course_details', arguments: course);
+                  },
+                );
+              },
+            ),
+            const SizedBox(height: 25),
+
+            // Quick Actions Section
             Text(
-              "Here's a quick overview of your dashboard.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
+              'Quick Actions',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple.shade800,
+                fontFamily: 'Oswald',
               ),
             ),
-            const SizedBox(height: 30),
-
-            // Students Section
-            _buildDashboardCard(
-              title: "Students",
-              icon: Icons.group,
-              count: dummyStudents.length,
-              list: dummyStudents,
-              color: Colors.blue.shade700,
-            ),
-            const SizedBox(height: 20),
-
-            // Faculty Section
-            _buildDashboardCard(
-              title: "Faculty",
-              icon: Icons.people,
-              count: dummyFaculty.length,
-              list: dummyFaculty,
-              color: Colors.orange.shade700,
+            const SizedBox(height: 15),
+            GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                _buildActionButton(
+                  context,
+                  icon: Icons.person_add_alt_1,
+                  label: 'Add Student',
+                  onTap: () => Navigator.of(context).pushNamed('/add_student'),
+                  color: Colors.purple.shade100,
+                  iconColor: Colors.purple.shade700,
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.edit_calendar,
+                  label: 'Mark Attendance',
+                  onTap: () => Navigator.of(context).pushNamed('/attendance'),
+                  color: Colors.red.shade100,
+                  iconColor: Colors.red.shade700,
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.upload_file,
+                  label: 'Upload Grades',
+                  onTap: () {
+                    _showMessage(context, 'Grade upload feature is in development.');
+                  },
+                  color: Colors.lightBlue.shade100,
+                  iconColor: Colors.lightBlue.shade700,
+                ),
+                _buildActionButton(
+                  context,
+                  icon: Icons.announcement,
+                  label: 'Send Announcement',
+                  onTap: () {
+                    _showMessage(context, 'Announcement feature coming soon!');
+                  },
+                  color: Colors.amber.shade100,
+                  iconColor: Colors.amber.shade700,
+                ),
+              ],
             ),
           ],
         ),
@@ -142,69 +140,253 @@ class TeacherHomePage extends StatelessWidget {
     );
   }
 
-  // Helper method to build a reusable dashboard card
-  Widget _buildDashboardCard({
-    required String title,
-    required IconData icon,
-    required int count,
-    required List<String> list,
-    required Color color,
-  }) {
+  // Teacher profile header widget
+  Widget _buildProfileHeader(BuildContext context) {
     return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      color: Colors.deepPurple.shade50,
+      elevation: 8,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                Icon(icon, size: 40, color: color),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Text(
-                    "$title ($count)",
-                    style: TextStyle(
-                      fontSize: 24,
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.deepPurple.shade200,
+              backgroundImage: AssetImage(profileImageUrl), // Aapki profile image
+              onBackgroundImageError: (exception, stackTrace) {
+                // Fallback if image fails to load
+                debugPrint('Error loading image: $exception');
+              },
+              child: profileImageUrl.isEmpty // Agar image na ho toh fallback icon
+                  ? Icon(Icons.person, size: 50, color: Colors.deepPurple.shade700)
+                  : null,
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    teacherName,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: color,
+                      color: Colors.deepPurple.shade900,
+                      fontFamily: 'Oswald',
                     ),
                   ),
-                ),
-              ],
-            ),
-            const Divider(height: 30),
-            ...list.take(3).map((item) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                children: [
-                  Icon(Icons.circle, size: 8, color: Colors.grey.shade500),
-                  const SizedBox(width: 10),
+                  const SizedBox(height: 5),
                   Text(
-                    item,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade800,
-                    ),
+                    'ID: $teacherId',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'Oswald'),
+                  ),
+                  Text(
+                    'Department: $department',
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'Oswald'),
                   ),
                 ],
               ),
-            )).toList(),
-            if (list.length > 3)
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Text(
-                  "and ${list.length - 3} more...",
-                  style: const TextStyle(
-                    fontStyle: FontStyle.italic,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  // Course card for teachers
+  Widget _buildCourseCard(
+      BuildContext context, {
+        required String courseName,
+        required String courseCode,
+        required String studentCount,
+        required VoidCallback onTap,
+      }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12.0),
+      color: Colors.indigo.shade50,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(15),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Icon(Icons.class_, size: 40, color: Colors.indigo.shade700),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      courseName,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple.shade900,
+                        fontFamily: 'Oswald',
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Code: $courseCode',
+                      style: TextStyle(fontSize: 15, color: Colors.grey.shade800, fontFamily: 'Oswald'),
+                    ),
+                    Text(
+                      'Students: $studentCount',
+                      style: TextStyle(fontSize: 15, color: Colors.grey.shade800, fontFamily: 'Oswald'),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Action button for quick access
+  Widget _buildActionButton(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required VoidCallback onTap,
+        required Color color,
+        required Color iconColor,
+      }) {
+    return Card(
+      color: color,
+      elevation: 4,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 50, color: iconColor),
+            const SizedBox(height: 10),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.deepPurple.shade900,
+                fontFamily: 'Oswald',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Teacher specific navigation drawer
+  Widget _buildTeacherDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          UserAccountsDrawerHeader(
+            accountName: Text(teacherName, style: const TextStyle(fontFamily: 'Oswald', fontWeight: FontWeight.bold)),
+            accountEmail: Text(department, style: const TextStyle(fontFamily: 'Oswald')),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: AssetImage(profileImageUrl), // Teacher profile image
+              onBackgroundImageError: (exception, stackTrace) {
+                debugPrint('Error loading image in drawer: $exception');
+              },
+              child: profileImageUrl.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white) : null,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.home,
+            title: 'Dashboard',
+            onTap: () => Navigator.popAndPushNamed(context, '/teacher_home'),
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.edit_calendar,
+            title: 'Mark Attendance',
+            onTap: () => Navigator.popAndPushNamed(context, '/attendance'),
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.person_add_alt_1,
+            title: 'Add Student',
+            onTap: () => Navigator.popAndPushNamed(context, '/add_student'),
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.upload_file,
+            title: 'Upload Grades',
+            onTap: () {
+              Navigator.pop(context);
+              _showMessage(context, 'Upload grades for your courses.');
+            },
+          ),
+          const Divider(),
+          _buildDrawerItem(
+            context,
+            icon: Icons.settings,
+            title: 'Settings',
+            onTap: () {
+              Navigator.pop(context);
+              _showMessage(context, 'Teacher settings coming soon.');
+            },
+          ),
+          _buildDrawerItem(
+            context,
+            icon: Icons.logout,
+            title: 'Logout',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).pushReplacementNamed('/home');
+            },
+            isImportant: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Drawer item widget
+  Widget _buildDrawerItem(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap, bool isImportant = false}) {
+    return ListTile(
+      leading: Icon(icon, color: isImportant ? Theme.of(context).colorScheme.secondary : Colors.deepPurple.shade700),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: isImportant ? FontWeight.bold : FontWeight.normal,
+          color: isImportant ? Theme.of(context).colorScheme.secondary : Colors.deepPurple.shade900,
+          fontFamily: 'Oswald',
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  // Generic message dialog
+  void _showMessage(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Information', style: TextStyle(fontFamily: 'Oswald')),
+          content: Text(message, style: const TextStyle(fontFamily: 'Oswald')),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK', style: TextStyle(color: Theme.of(dialogContext).primaryColor, fontFamily: 'Oswald')),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
