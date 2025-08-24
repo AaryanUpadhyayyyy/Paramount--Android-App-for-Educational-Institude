@@ -1,175 +1,145 @@
 import 'package:flutter/material.dart';
 
-class StudentAttendancePage extends StatelessWidget {
-  const StudentAttendancePage({super.key});
+class StudentHomePage extends StatelessWidget {
+  // Constructor ab dummy data se student ka naam aur USN leta hai
+  final String usn;
+  final String name;
 
-  // Dummy attendance data for UI
-  final List<Map<String, dynamic>> dummyAttendance = const [
-    {
-      'date': '01 Jan 2024',
-      'subject': 'Mathematics',
-      'status': 'Present',
-    },
-    {
-      'date': '02 Jan 2024',
-      'subject': 'Physics',
-      'status': 'Absent',
-    },
-    {
-      'date': '03 Jan 2024',
-      'subject': 'Chemistry',
-      'status': 'Present',
-    },
-    {
-      'date': '04 Jan 2024',
-      'subject': 'Mathematics',
-      'status': 'Late',
-    },
-    {
-      'date': '05 Jan 2024',
-      'subject': 'Physics',
-      'status': 'Present',
-    },
-  ];
+  const StudentHomePage({
+    super.key,
+    this.usn = "1BM19CS01", // Dummy USN
+    this.name = "John Doe", // Dummy Name
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'My Attendance',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Oswald-VariableFont_wght',
-            fontSize: 22,
-          ),
-        ),
-        backgroundColor: Colors.indigo.shade700,
+        title: const Text('Student Home Page'),
+        backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 4.0,
       ),
-      body: Column(
-        children: [
-          // Header showing total attendance
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Card(
-              elevation: 4,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Dummy Profile Card
+            Card(
+              elevation: 8.0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(15.0),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
                   children: [
-                    _buildStatCard(
-                      'Present',
-                      3,
-                      Colors.green.shade700,
+                    const CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.indigo,
+                      child: Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Colors.white,
+                      ),
                     ),
-                    _buildStatCard(
-                      'Absent',
-                      1,
-                      Colors.red.shade700,
+                    const SizedBox(height: 15),
+                    Text(
+                      'Welcome, $name!',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.indigo,
+                      ),
                     ),
-                    _buildStatCard(
-                      'Late',
-                      1,
-                      Colors.orange.shade700,
+                    const SizedBox(height: 5),
+                    Text(
+                      'USN: $usn',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
+                    const Divider(height: 30, thickness: 1),
+                    _buildInfoRow(Icons.email, 'johndoe@example.com'),
+                    _buildInfoRow(Icons.phone, '9876543210'),
                   ],
                 ),
               ),
             ),
-          ),
-          const Divider(),
-          // Attendance History List
-          Expanded(
-            child: ListView.builder(
-              itemCount: dummyAttendance.length,
-              itemBuilder: (context, index) {
-                final record = dummyAttendance[index];
-                final status = record['status'] as String;
-                Color statusColor = Colors.grey;
-                IconData statusIcon = Icons.help;
+            const SizedBox(height: 20),
 
-                // Set color and icon based on status
-                switch (status) {
-                  case 'Present':
-                    statusColor = Colors.green;
-                    statusIcon = Icons.check_circle;
-                    break;
-                  case 'Absent':
-                    statusColor = Colors.red;
-                    statusIcon = Icons.cancel;
-                    break;
-                  case 'Late':
-                    statusColor = Colors.orange;
-                    statusIcon = Icons.access_time_filled;
-                    break;
-                }
-
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: statusColor,
-                      child: Icon(statusIcon, color: Colors.white),
-                    ),
-                    title: Text(
-                      record['subject'] as String,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text('Date: ${record['date']}'),
-                    trailing: Chip(
-                      label: Text(status),
-                      backgroundColor: statusColor.withOpacity(0.1),
-                      labelStyle: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
+            // Navigation Grid
+            GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                _buildGridItem(context, 'Attendance', Icons.event_available, () {
+                  Navigator.pushNamed(context, '/student_attendance');
+                }),
+                _buildGridItem(context, 'Announcements', Icons.notifications, () {
+                  // Dummy action
+                }),
+                _buildGridItem(context, 'Assignments', Icons.assignment, () {
+                  // Dummy action
+                }),
+                _buildGridItem(context, 'Result', Icons.score, () {
+                  // Dummy action
+                }),
+                _buildGridItem(context, 'Fee Payment', Icons.payment, () {
+                  // Dummy action
+                }),
+                _buildGridItem(context, 'Calendar', Icons.calendar_today, () {
+                  // Dummy action
+                }),
+              ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method for profile info rows
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 20, color: Colors.indigo),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade800),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String title, int count, Color color) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey.shade600,
-          ),
+  // Helper method for grid items
+  Widget _buildGridItem(BuildContext context, String title, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Card(
+        elevation: 4.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 50, color: Colors.indigo),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
         ),
-        const SizedBox(height: 5),
-        Text(
-          '$count',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
