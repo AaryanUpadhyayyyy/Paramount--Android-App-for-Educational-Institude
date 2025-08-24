@@ -4,18 +4,53 @@ class AddStudentPage extends StatefulWidget {
   const AddStudentPage({super.key});
 
   @override
-  State<AddStudentPage> createState() => _AddStudentPageState();
+  _AddStudentPageState createState() => _AddStudentPageState();
 }
 
 class _AddStudentPageState extends State<AddStudentPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _usnController = TextEditingController(); // For Roll No. / USN
-  final _emailController =
-      TextEditingController(); // Student's email for Firebase Auth
-  final _passwordController =
-      TextEditingController(); // Initial password for student
-  bool _isLoading = false; // Loading indicator for adding student
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _usnController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _courseController = TextEditingController();
+  final TextEditingController _semesterController = TextEditingController();
+
+  // Loading state ko dummy rakha gaya hai
+  bool _isLoading = false;
+
+  // Ab yeh function sirf dummy logic dikhaega
+  Future<void> _addStudent() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Backend call ko simulate karne ke liye dummy delay
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Dummy success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Dummy: Student "${_nameController.text}" added successfully!'),
+        ),
+      );
+
+      // Fields ko clear karna
+      _nameController.clear();
+      _usnController.clear();
+      _emailController.clear();
+      _passwordController.clear();
+      _phoneNumberController.clear();
+      _courseController.clear();
+      _semesterController.clear();
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -23,26 +58,10 @@ class _AddStudentPageState extends State<AddStudentPage> {
     _usnController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _phoneNumberController.dispose();
+    _courseController.dispose();
+    _semesterController.dispose();
     super.dispose();
-  }
-
-  void _addStudent() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Student added (placeholder, no backend).'),
-          ),
-        );
-        Navigator.pop(context);
-      });
-    }
   }
 
   @override
@@ -50,104 +69,137 @@ class _AddStudentPageState extends State<AddStudentPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Add New Student',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          "Add New Student",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.indigo.shade700,
         foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 4.0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
+              _buildTextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Student Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter student name';
-                  }
-                  return null;
-                },
+                labelText: 'Student Name',
+                icon: Icons.person,
+                validator: (value) => value!.isEmpty ? 'Please enter student name' : null,
               ),
-              const SizedBox(height: 15),
-              TextFormField(
+              const SizedBox(height: 16.0),
+              _buildTextFormField(
                 controller: _usnController,
-                decoration: const InputDecoration(
-                  labelText: 'Roll No. / USN',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.badge),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Roll No. / USN';
-                  }
-                  return null;
-                },
+                labelText: 'USN (e.g., 1BM19CS01)',
+                icon: Icons.badge,
+                validator: (value) => value!.isEmpty ? 'Please enter USN' : null,
               ),
-              const SizedBox(height: 15),
-              TextFormField(
+              const SizedBox(height: 16.0),
+              _buildTextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email (for login)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
-                ),
+                labelText: 'Email',
+                icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value!.isEmpty) {
                     return 'Please enter email';
                   }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return 'Please enter a valid email address';
+                  if (!value.contains('@')) {
+                    return 'Please enter a valid email';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 15),
-              TextFormField(
+              const SizedBox(height: 16.0),
+              _buildTextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Initial Password',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter initial password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters long';
-                  }
-                  return null;
-                },
+                labelText: 'Password',
+                icon: Icons.lock,
+                isPassword: true,
+                validator: (value) => value!.isEmpty ? 'Please enter password' : null,
               ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _addStudent,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Add Student', style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 16.0),
+              _buildTextFormField(
+                controller: _phoneNumberController,
+                labelText: 'Phone Number',
+                icon: Icons.phone,
+                keyboardType: TextInputType.phone,
               ),
+              const SizedBox(height: 16.0),
+              _buildTextFormField(
+                controller: _courseController,
+                labelText: 'Course',
+                icon: Icons.school,
+              ),
+              const SizedBox(height: 16.0),
+              _buildTextFormField(
+                controller: _semesterController,
+                labelText: 'Semester',
+                icon: Icons.calendar_today,
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 30.0),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _addStudent,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.indigo,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Add Student',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // Helper method for a consistent TextFormField style
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    bool isPassword = false,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(icon, color: Colors.indigo),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: Colors.grey.shade400),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: const BorderSide(color: Colors.indigo, width: 2.0),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+      ),
+      validator: validator,
     );
   }
 }
