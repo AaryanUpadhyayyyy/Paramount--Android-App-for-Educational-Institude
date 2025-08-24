@@ -1,68 +1,92 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:paramount/main.dart'; // LoginPage import karne ke liye
+import 'dart:async'; // Timer ke liye
 
-class splashscreen extends StatefulWidget {
-  const splashscreen({super.key});
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  State<splashscreen> createState() => _splashscreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _splashscreenState extends State<splashscreen> {
-  final String _fullText = "Upadhyay Paramount Classes";
-  String _displayedText = "";
-  int _currentIndex = 0;
-  Timer? _animationTimer;
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _startTypewriterAnimation();
+    // Animation controller setup kiya
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500), // Animation duration
+    );
+    // Tween animation jo 0 se 1 tak scale karta hai
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
 
-    Timer(const Duration(seconds: 6), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()), // 'title' parameter hata diya
-      );
-    });
-  }
+    _controller.forward(); // Animation start kiya
 
-  void _startTypewriterAnimation() {
-    _animationTimer = Timer.periodic(const Duration(milliseconds: 150), (timer) {
-      if (_currentIndex < _fullText.length) {
-        setState(() {
-          _displayedText += _fullText[_currentIndex];
-          _currentIndex++;
-        });
-      } else {
-        _animationTimer?.cancel();
-      }
+    // 3 seconds ke baad home page par navigate karega
+    Timer(const Duration(seconds: 3), () {
+      Navigator.of(context).pushReplacementNamed('/home');
     });
   }
 
   @override
   void dispose() {
-    _animationTimer?.cancel();
+    _controller.dispose(); // Controller ko dispose kiya memory leaks se bachne ke liye
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: Colors.blue,
-        child: Center(
-          child: Text(
-            _displayedText,
-            style: const TextStyle(
-              fontWeight: FontWeight.w900,
-              fontFamily: 'Oswald-VariableFont_wght',
-              fontSize: 30,
-              color: Colors.white,
-            ),
+      backgroundColor: Colors.deepPurple.shade800, // Splash screen background color
+      body: Center(
+        child: ScaleTransition(
+          scale: _animation, // Animation apply kiya
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Placeholder for your app logo/image
+              // Assuming you have a logo asset, replace 'assets/images/app_logo.png' with actual path
+              Image.asset(
+                'assets/images/books.png', // Example image from your assets
+                width: 150,
+                height: 150,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.school,
+                    size: 150,
+                    color: Colors.white,
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              // App ka naam ya tagline
+              const Text(
+                'Paramount Institute',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Oswald',
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Educating Minds, Shaping Futures',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 18,
+                  fontFamily: 'Oswald',
+                ),
+              ),
+              const SizedBox(height: 30),
+              // Loading indicator
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.amberAccent.shade400),
+              ),
+            ],
           ),
         ),
       ),
