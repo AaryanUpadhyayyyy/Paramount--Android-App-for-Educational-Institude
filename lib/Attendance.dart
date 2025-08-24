@@ -1,116 +1,64 @@
 import 'package:flutter/material.dart';
 
-import 'package:intl/intl.dart'; // Date formatting ke liye
-
-class Attendance extends StatefulWidget {
-  const Attendance({super.key});
+class AttendancePage extends StatefulWidget {
+  const AttendancePage({super.key});
 
   @override
-  State<Attendance> createState() => _AttendanceState();
+  _AttendancePageState createState() => _AttendancePageState();
 }
 
-class _AttendanceState extends State<Attendance> {
-  DateTime _selectedDate = DateTime.now(); // Default selected date
-  List<Map<String, dynamic>> _students = []; // Students ki list
-  Map<String, String> _attendanceStatus =
-      {}; // StudentId -> Status (Present/Absent/Late)
-  final Map<String, Map<String, dynamic>> _studentDetailsMap =
-      {}; // StudentId -> {name, usn} for easy lookup
+class _AttendancePageState extends State<AttendancePage> {
+  // Dummy data for frontend display
+  final List<String> subjects = ['Math', 'Physics', 'Chemistry'];
+  final List<String> studentNames = ['Rohit Sharma', 'Virat Kohli', 'MS Dhoni'];
+  final List<String> rollNumbers = ['01', '02', '03'];
 
-  bool _isLoading = false; // Loading indicator for data operations
+  // Dummy variables to simulate state
+  String? _selectedSubject;
+  String? _selectedSemester;
+  String? _selectedCourse;
+  String? _selectedRollNumber;
 
   @override
   void initState() {
     super.initState();
-    _fetchStudentsAndAttendance();
+    // No backend initialization needed
   }
 
-  // Date select karne ke liye function
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2023, 1), // Attendance tracking start date
-      lastDate: DateTime.now().add(
-        const Duration(days: 30),
-      ), // Future dates tak select kar sakte hain
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.indigo.shade700, // Header background color
-              onPrimary: Colors.white, // Header text color
-              onSurface: Colors.black, // Body text color
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.indigo.shade700, // Button text color
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        _attendanceStatus
-            .clear(); // Date change hone par attendance status reset karein
-      });
-      await _fetchStudentsAndAttendance(); // Nayi date ke liye students aur attendance fetch karein
-    }
-  }
-
-  // Firestore se students ki list aur us date ki attendance fetch karein
-  Future<void> _fetchStudentsAndAttendance() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await Future.delayed(const Duration(milliseconds: 500));
-    // Placeholder static students
-    _students = [
-      {'id': '1', 'name': 'Student One', 'usn': 'USN001'},
-      {'id': '2', 'name': 'Student Two', 'usn': 'USN002'},
-      {'id': '3', 'name': 'Student Three', 'usn': 'USN003'},
-    ];
-    _studentDetailsMap.clear();
-    for (var student in _students) {
-      _studentDetailsMap[student['id']] = {
-        'name': student['name'],
-        'usn': student['usn'],
-      };
-    }
-    Map<String, String> currentAttendance = {};
-    for (var student in _students) {
-      currentAttendance[student['id']] = 'Absent';
-    }
-    setState(() {
-      _attendanceStatus = currentAttendance;
-      _isLoading = false;
-    });
-  }
-
-  // Attendance status update karein
-  void _updateAttendanceStatus(String studentId, String status) {
-    setState(() {
-      _attendanceStatus[studentId] = status;
-    });
-  }
-
-  // Attendance data Firestore mein save karein
-  Future<void> _saveAttendance() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await Future.delayed(const Duration(milliseconds: 500));
-    setState(() {
-      _isLoading = false;
-    });
+  // This function will now use dummy data
+  Future<void> _fetchAndDisplayAttendance() async {
+    // In a real app, this would fetch data from a database
+    // For now, we are just showing a loading indicator and a message.
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Attendance saved (placeholder, no backend).'),
-      ),
+      const SnackBar(content: Text('Fetching attendance data...')),
+    );
+
+    // Simulate a network delay
+    await Future.delayed(const Duration(seconds: 2));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Attendance data loaded!')),
+    );
+  }
+
+  // This function will also use dummy data and not upload anything
+  Future<void> _markAttendance() async {
+    if (_selectedRollNumber == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a student.')),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Marking attendance for Roll No: $_selectedRollNumber')),
+    );
+
+    // Simulate a network delay
+    await Future.delayed(const Duration(seconds: 2));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Attendance marked successfully!')),
     );
   }
 
@@ -118,211 +66,91 @@ class _AttendanceState extends State<Attendance> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Mark Attendance",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Oswald-VariableFont_wght',
-            fontSize: 22,
-          ),
-        ),
-        backgroundColor: Colors.indigo.shade700,
-        foregroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 4.0,
+        title: const Text('Attendance'),
+        backgroundColor: Colors.indigo,
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            ) // Loading indicator
-          : Column(
-              children: [
-                // Date Picker Section
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Selected Date:",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                DateFormat('dd MMM yyyy').format(_selectedDate),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () => _selectDate(context),
-                            icon: const Icon(
-                              Icons.calendar_today,
-                              color: Colors.white,
-                            ),
-                            label: const Text(
-                              "Change Date",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue.shade700,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const Divider(), // Separator
-                // Student List for Attendance Marking
-                Expanded(
-                  child: _students.isEmpty
-                      ? const Center(
-                          child: Text(
-                            "No students found. Please add students first.",
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: _students.length,
-                          itemBuilder: (context, index) {
-                            final student = _students[index];
-                            final studentId = student['id'];
-                            final currentStatus =
-                                _attendanceStatus[studentId] ?? 'Absent';
-
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
-                              ),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "${student['name']} (${student['usn']})",
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        _buildAttendanceOption(
-                                          'Present',
-                                          currentStatus,
-                                          () => _updateAttendanceStatus(
-                                            studentId,
-                                            'Present',
-                                          ),
-                                          Colors.green,
-                                        ),
-                                        _buildAttendanceOption(
-                                          'Absent',
-                                          currentStatus,
-                                          () => _updateAttendanceStatus(
-                                            studentId,
-                                            'Absent',
-                                          ),
-                                          Colors.red,
-                                        ),
-                                        _buildAttendanceOption(
-                                          'Late',
-                                          currentStatus,
-                                          () => _updateAttendanceStatus(
-                                            studentId,
-                                            'Late',
-                                          ),
-                                          Colors.orange,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                ),
-
-                // Save Attendance Button
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _saveAttendance,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo.shade700,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            "Save Attendance",
-                            style: TextStyle(fontSize: 18),
-                          ),
-                  ),
-                ),
-              ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Subject Selection
+            const Text(
+              'Select Subject',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-    );
-  }
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: _selectedSubject,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Subject',
+              ),
+              items: subjects.map((String subject) {
+                return DropdownMenuItem<String>(
+                  value: subject,
+                  child: Text(subject),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedSubject = newValue;
+                });
+              },
+            ),
 
-  // Helper method for attendance options (Present/Absent/Late)
-  Widget _buildAttendanceOption(
-    String option,
-    String currentStatus,
-    VoidCallback onPressed,
-    Color color,
-  ) {
-    bool isSelected = currentStatus == option;
-    return ChoiceChip(
-      label: Text(option),
-      selected: isSelected,
-      selectedColor: color.withOpacity(0.2), // Light color when selected
-      onSelected: (selected) {
-        if (selected) {
-          onPressed();
-        }
-      },
-      labelStyle: TextStyle(
-        color: isSelected ? color : Colors.black87,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            const SizedBox(height: 20),
+            
+            // Student and Roll Number Selection (Combined for simplicity)
+            const Text(
+              'Mark Attendance',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: _selectedRollNumber,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Select Student (Roll No)',
+              ),
+              items: rollNumbers.map((String rollNo) {
+                return DropdownMenuItem<String>(
+                  value: rollNo,
+                  child: Text('Roll No: $rollNo'),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedRollNumber = newValue;
+                });
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            // Buttons
+            ElevatedButton.icon(
+              onPressed: _markAttendance,
+              icon: const Icon(Icons.check),
+              label: const Text('Mark Present'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              onPressed: _fetchAndDisplayAttendance,
+              icon: const Icon(Icons.download),
+              label: const Text('View Attendance History'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+              ),
+            ),
+          ],
+        ),
       ),
-      side: BorderSide(color: isSelected ? color : Colors.grey.shade400),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     );
   }
 }
