@@ -1,67 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:paramount/main.dart';
-import 'package:paramount/add_student_page.dart';
-import 'package:paramount/services/cloudinary_service.dart';
 
-class TeacherHomePage extends StatefulWidget {
+// Dummy data for a placeholder teacher
+const String dummyTeacherName = "Anjali Mehta";
+const String dummyTeacherEmail = "anjali.mehta@example.com";
+
+// Dummy data for students and faculty
+final List<String> dummyStudents = [
+  "John Doe",
+  "Jane Smith",
+  "Aaryan Upadhyay"
+];
+final List<String> dummyFaculty = [
+  "Dr. Sunil Upadhyay",
+  "Dr. Anjali Mehta",
+  "Prof. Rahul Sharma"
+];
+
+class TeacherHomePage extends StatelessWidget {
   const TeacherHomePage({super.key});
-
-  @override
-  State<TeacherHomePage> createState() => _TeacherHomePageState();
-}
-
-class _TeacherHomePageState extends State<TeacherHomePage> {
-  bool _isUploading = false;
-  String? _lastUploadedUrl;
-
-  Future<void> _uploadProfileImage() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Not signed in')),
-        );
-        return;
-      }
-
-      setState(() => _isUploading = true);
-
-      final cloudinary = CloudinaryService();
-      final result = await cloudinary.pickAndUploadImage(
-        folder: 'paramount/profile_images/${user.uid}',
-        tags: {'type': 'profile_image', 'user_id': user.uid},
-      );
-
-      if (!mounted) return;
-
-      if (result != null && (result['success'] == true || result['url'] != null)) {
-        _lastUploadedUrl = result['url'] as String?;
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-          'profileImageUrl': result['url'],
-          'profileImagePublicId': result['public_id'],
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile image updated')),
-        );
-        setState(() {});
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No image selected')),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Upload failed: $e')),
-      );
-    } finally {
-      if (mounted) setState(() => _isUploading = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,84 +25,183 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
       appBar: AppBar(
         title: const Text(
           "Teacher Dashboard",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.indigo.shade700,
-        actions: [
-          IconButton(
-            icon: _isUploading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                  )
-                : const Icon(Icons.photo_camera, color: Colors.white),
-            tooltip: 'Upload profile image',
-            onPressed: _isUploading ? null : _uploadProfileImage,
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              if (!mounted) return;
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginPage(title: 'Login'),
-                ),
-              );
-            },
-          ),
-        ],
+        foregroundColor: Colors.white,
+        elevation: 4.0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            const Text(
-              "Welcome, Teacher!",
-              style: TextStyle(
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.indigo.shade700,
+              ),
+              accountName: const Text(
+                dummyTeacherName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              accountEmail: const Text(dummyTeacherEmail),
+              currentAccountPicture: const CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.person,
+                  color: Colors.indigo,
+                  size: 50,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home, color: Colors.indigo),
+              title: const Text("Home"),
+              onTap: () => Navigator.of(context).pop(),
+            ),
+            ListTile(
+              leading: const Icon(Icons.group, color: Colors.indigo),
+              title: const Text("Students"),
+              onTap: () {
+                Navigator.of(context).pop();
+                // Add your navigation logic here, e.g., to a new StudentsPage
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people, color: Colors.indigo),
+              title: const Text("Faculty"),
+              onTap: () {
+                Navigator.of(context).pop();
+                // Add your navigation logic here, e.g., to a new FacultyPage
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text("Logout"),
+              onTap: () {
+                Navigator.of(context).pop();
+                // Dummy logout logic
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Logged out successfully!")),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Welcome Section
+            Text(
+              "Welcome, $dummyTeacherName!",
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Colors.indigo,
               ),
             ),
-            const SizedBox(height: 12),
-            if (_lastUploadedUrl != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: CircleAvatar(
-                  radius: 36,
-                  backgroundImage: NetworkImage(_lastUploadedUrl!),
-                ),
+            const SizedBox(height: 10),
+            Text(
+              "Here's a quick overview of your dashboard.",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
               ),
-            ElevatedButton(
-              onPressed: _isUploading ? null : _uploadProfileImage,
-              child: Text(_isUploading ? 'Uploading...' : 'Upload Profile Image'),
+            ),
+            const SizedBox(height: 30),
+
+            // Students Section
+            _buildDashboardCard(
+              title: "Students",
+              icon: Icons.group,
+              count: dummyStudents.length,
+              list: dummyStudents,
+              color: Colors.blue.shade700,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddStudentPage(),
-                  ),
-                );
-              },
-              child: const Text("Add New Student"),
+
+            // Faculty Section
+            _buildDashboardCard(
+              title: "Faculty",
+              icon: Icons.people,
+              count: dummyFaculty.length,
+              list: dummyFaculty,
+              color: Colors.orange.shade700,
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Mark Attendance feature coming soon!'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build a reusable dashboard card
+  Widget _buildDashboardCard({
+    required String title,
+    required IconData icon,
+    required int count,
+    required List<String> list,
+    required Color color,
+  }) {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 40, color: color),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Text(
+                    "$title ($count)",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
                   ),
-                );
-              },
-              child: const Text("Mark Attendance"),
+                ),
+              ],
             ),
+            const Divider(height: 30),
+            ...list.take(3).map((item) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                children: [
+                  Icon(Icons.circle, size: 8, color: Colors.grey.shade500),
+                  const SizedBox(width: 10),
+                  Text(
+                    item,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                ],
+              ),
+            )).toList(),
+            if (list.length > 3)
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(
+                  "and ${list.length - 3} more...",
+                  style: const TextStyle(
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
